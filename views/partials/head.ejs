@@ -1,0 +1,127 @@
+<%
+  const cur = (p, exact) => ((exact ? currentPath === p : (currentPath === p || currentPath.startsWith(p + '/'))) ? ' aria-current="page"' : '');
+  const desc = (typeof description !== 'undefined' && description) ? description
+    : 'VisionConnect Jobs is a free, accessible job portal for job seekers with any disability, and for employers who want to hire them.';
+%><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %></title>
+    <meta name="description" content="<%= desc %>">
+    <meta name="theme-color" content="#0b2a55">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <script src="/js/prefs-init.js"></script>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body data-role="<%= user ? user.role : '' %>">
+    <div class="skip-links">
+        <a href="#main">Skip to main content</a>
+        <a href="#site-nav">Skip to navigation</a>
+    </div>
+    <div id="sr-polite" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="logo" href="/" aria-label="VisionConnect Jobs, home page">
+                <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M2 16s5-9 14-9 14 9 14 9-5 9-14 9S2 16 2 16z" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="16" cy="16" r="5" fill="currentColor"/></svg>
+                <span>Vision<b>Connect</b></span>
+            </a>
+
+            <nav class="main-nav" id="site-nav" aria-label="Main" tabindex="-1">
+                <ul>
+                <% if (!user) { %>
+                    <li><a href="/jobs"<%- cur('/jobs') %>>Find jobs</a></li>
+                    <li><a href="/accessibility"<%- cur('/accessibility') %>>Help</a></li>
+                    <li><a href="/auth/login"<%- cur('/auth/login') %>>Log in</a></li>
+                    <li><a class="nav-cta" href="/auth/register"<%- cur('/auth/register') %>>Create free account</a></li>
+                <% } else if (user.role === 'seeker') { %>
+                    <li><a href="/jobs"<%- cur('/jobs') %>>Find jobs</a></li>
+                    <li><a href="/seeker/dashboard"<%- cur('/seeker/dashboard') %>>Dashboard</a></li>
+                    <li><a href="/seeker/applications"<%- cur('/seeker/applications') %>>Applications</a></li>
+                    <li><a href="/seeker/saved-jobs"<%- cur('/seeker/saved-jobs') %>>Saved jobs</a></li>
+                    <li><a href="/seeker/profile"<%- cur('/seeker/profile') %>>My profile</a></li>
+                    <li><a href="/accessibility"<%- cur('/accessibility') %>>Help</a></li>
+                <% } else if (user.role === 'employer') { %>
+                    <li><a href="/employer/dashboard"<%- cur('/employer/dashboard') %>>Dashboard</a></li>
+                    <li><a href="/employer/jobs/new"<%- cur('/employer/jobs/new') %>>Post a job</a></li>
+                    <li><a href="/accessibility"<%- cur('/accessibility') %>>Help</a></li>
+                <% } else { %>
+                    <li><a href="/admin/dashboard"<%- cur('/admin/dashboard') %>>Dashboard</a></li>
+                    <li><a href="/admin/jobs"<%- cur('/admin/jobs') %>>Jobs</a></li>
+                    <li><a href="/admin/users"<%- cur('/admin/users') %>>Users</a></li>
+                <% } %>
+                <% if (user) { %>
+                    <li><a href="/auth/account"<%- cur('/auth/account') %>>Account</a></li>
+                    <li>
+                        <form class="logout-form" method="post" action="/auth/logout">
+                            <%- csrfField() %>
+                            <button type="submit">Log out<span class="sr-only"> <%= user.name %></span></button>
+                        </form>
+                    </li>
+                <% } %>
+                </ul>
+            </nav>
+
+            <div class="header-tools">
+                <button type="button" class="a11y-toggle" id="a11y-toggle" aria-expanded="false" aria-controls="a11y-panel">
+                    <span aria-hidden="true">Aa</span> Accessibility settings
+                </button>
+            </div>
+        </div>
+
+        <div class="a11y-panel" id="a11y-panel" role="region" aria-label="Accessibility settings" hidden>
+            <div class="a11y-inner">
+                <fieldset>
+                    <legend>Text size</legend>
+                    <div class="seg">
+                        <button type="button" class="chip" data-pref="text" data-value="normal" aria-pressed="false">Normal</button>
+                        <button type="button" class="chip" data-pref="text" data-value="large" aria-pressed="false">Large</button>
+                        <button type="button" class="chip" data-pref="text" data-value="xlarge" aria-pressed="false">Extra large</button>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Colours</legend>
+                    <div class="seg">
+                        <button type="button" class="chip" data-pref="theme" data-value="light" aria-pressed="false">Light</button>
+                        <button type="button" class="chip" data-pref="theme" data-value="dark" aria-pressed="false">Dark</button>
+                        <button type="button" class="chip" data-pref="theme" data-value="contrast" aria-pressed="false">High contrast</button>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Spacing and motion</legend>
+                    <div class="seg">
+                        <button type="button" class="chip" data-pref="spacing" data-value="wide" aria-pressed="false">Wide spacing</button>
+                        <button type="button" class="chip" data-pref="motion" data-value="reduce" aria-pressed="false">No animations</button>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Listen</legend>
+                    <div class="a11y-actions">
+                        <button type="button" class="chip" id="read-aloud" aria-pressed="false">Read this page aloud</button>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Voice commands</legend>
+                    <div class="a11y-actions">
+                        <label for="voice-lang" class="sr-only">Voice language</label>
+                        <select id="voice-lang" class="input input-auto">
+                            <option value="en-IN">English</option>
+                            <option value="hi-IN">हिन्दी</option>
+                            <option value="mr-IN">मराठी</option>
+                        </select>
+                        <button type="button" class="chip" id="voice-toggle" aria-pressed="false">Start voice commands</button>
+                    </div>
+                    <label class="check mt-sm"><input type="checkbox" id="voice-speak"><span>Speak the replies out loud</span></label>
+                    <p class="voice-help" id="voice-status" role="status"></p>
+                    <p class="voice-help">Try: “jobs”, “search for accountant”, “profile”, “read page”, “help”.</p>
+                </fieldset>
+                <div class="a11y-actions">
+                    <button type="button" class="btn btn-secondary btn-sm" data-reset-prefs>Reset settings</button>
+                    <a href="/accessibility">Help and keyboard tips</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="main" tabindex="-1">

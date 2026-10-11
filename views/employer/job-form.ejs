@@ -1,0 +1,77 @@
+<%- include('../partials/head') %>
+<%
+  const catSel = h.csv(job.disability_categories || 'all');
+  const techSel = h.csv(job.assistive_tech_provided), intSel = h.csv(job.interview_modes);
+  const deadline = job.application_deadline ? String(job.application_deadline).slice(0, 10) : '';
+%>
+<a class="back" href="/employer/dashboard"><span aria-hidden="true">←&nbsp;</span>Back to dashboard</a>
+<h1><%= mode === 'edit' ? 'Edit job' : 'Post a job' %></h1>
+<%- include('../partials/flash') %>
+<%- include('../partials/errors') %>
+<p class="muted">Fields marked required must be filled in. A VisionConnect team member checks every job before it goes live<%= mode === 'edit' ? ', so edited jobs are checked again' : '' %>.</p>
+
+<form class="form" method="post" action="<%= mode === 'edit' ? '/employer/jobs/' + job.id + '/edit' : '/employer/jobs/new' %>" novalidate>
+    <%- csrfField() %>
+    <fieldset class="group">
+        <legend>The job</legend>
+        <%- include('../partials/field', { f: { name: 'title', label: 'Job title', value: job.title, required: true, maxlength: 120 } }) %>
+        <%- include('../partials/field', { f: { name: 'company', label: 'Company or organisation', value: job.company, required: true, maxlength: 120, autocomplete: 'organization' } }) %>
+        <div class="two-col">
+            <%- include('../partials/field', { f: { name: 'location', label: 'Location', value: job.location, hint: 'City or area. Write “Anywhere in India” for remote jobs.' } }) %>
+            <%- include('../partials/field', { f: { name: 'salary_range', label: 'Pay', value: job.salary_range, hint: 'For example: ₹15,000 to ₹20,000 a month' } }) %>
+            <%- include('../partials/field', { f: { name: 'job_type', label: 'Job type', type: 'select', value: job.job_type, options: Object.entries(h.JOB_TYPES).filter(function (e) { return e[0] !== 'remote'; }) } }) %>
+            <%- include('../partials/field', { f: { name: 'work_mode', label: 'Where the work happens', type: 'select', value: job.work_mode, options: Object.entries(h.WORK_MODES) } }) %>
+            <%- include('../partials/field', { f: { name: 'openings', label: 'Number of openings', type: 'number', min: 1, max: 1000, value: job.openings, inputmode: 'numeric' } }) %>
+            <%- include('../partials/field', { f: { name: 'application_deadline', label: 'Last date to apply', type: 'date', value: deadline, hint: 'Optional.' } }) %>
+        </div>
+        <%- include('../partials/field', { f: { name: 'description', label: 'What will the person do?', type: 'textarea', rows: 7, value: job.description, required: true, hint: 'Describe the daily work in plain language.', maxlength: 6000 } }) %>
+        <%- include('../partials/field', { f: { name: 'requirements', label: 'What skills are needed?', type: 'textarea', rows: 4, value: job.requirements, maxlength: 3000 } }) %>
+        <%- include('../partials/field', { f: { name: 'experience_required', label: 'Experience', value: job.experience_required, hint: 'For example: Freshers welcome' } }) %>
+    </fieldset>
+
+    <fieldset class="group">
+        <legend>Who can apply</legend>
+        <fieldset class="group" data-exclusive-group>
+            <legend>Disability categories</legend>
+            <div class="checks">
+                <label class="check"><input type="checkbox" name="disability_categories" value="all" data-exclusive <%= catSel.includes('all') ? 'checked' : '' %>><span><strong>All categories</strong>Anyone can apply.</span></label>
+                <% Object.entries(h.JOB_DISABILITY_CATEGORIES).forEach(function (e) { %>
+                    <label class="check"><input type="checkbox" name="disability_categories" value="<%= e[0] %>" <%= catSel.includes(e[0]) ? 'checked' : '' %>><span><%= e[1] %></span></label>
+                <% }) %>
+            </div>
+        </fieldset>
+        <div class="two-col">
+            <%- include('../partials/field', { f: { name: 'min_disability_percent', label: 'Minimum disability percentage', type: 'number', min: 0, max: 100, value: job.min_disability_percent || 0, inputmode: 'numeric', hint: '0 means no minimum.' } }) %>
+        </div>
+        <label class="check"><input type="checkbox" name="udid_required" value="1" <%= job.udid_required ? 'checked' : '' %>><span>A UDID card is required</span></label>
+    </fieldset>
+
+    <fieldset class="group">
+        <legend>Accessibility at your workplace</legend>
+        <p class="hint">This is the most useful part for candidates. Be specific.</p>
+        <fieldset class="group">
+            <legend>Tools you provide</legend>
+            <div class="checks">
+                <% Object.entries(h.TECH_PROVIDED).forEach(function (e) { %>
+                    <label class="check"><input type="checkbox" name="assistive_tech_provided" value="<%= e[0] %>" <%= techSel.includes(e[0]) ? 'checked' : '' %>><span><%= e[1] %></span></label>
+                <% }) %>
+            </div>
+        </fieldset>
+        <fieldset class="group">
+            <legend>How interviews can be done</legend>
+            <div class="checks">
+                <% Object.entries(h.INTERVIEW_MODES).forEach(function (e) { %>
+                    <label class="check"><input type="checkbox" name="interview_modes" value="<%= e[0] %>" <%= intSel.includes(e[0]) ? 'checked' : '' %>><span><%= e[1] %></span></label>
+                <% }) %>
+            </div>
+        </fieldset>
+        <%- include('../partials/field', { f: { name: 'accessibility_features', label: 'Workplace features', type: 'textarea', rows: 3, value: job.accessibility_features, hint: 'For example: ground-floor office, lift with voice announcements, tactile paving.', maxlength: 2000 } }) %>
+        <%- include('../partials/field', { f: { name: 'accommodation_details', label: 'Adjustments you can make', type: 'textarea', rows: 3, value: job.accommodation_details, hint: 'For example: flexible hours, a buddy for the first month, documents in accessible formats.', maxlength: 2000 } }) %>
+    </fieldset>
+
+    <div class="actions">
+        <button class="btn btn-lg" type="submit"><%= mode === 'edit' ? 'Save changes' : 'Submit job for approval' %></button>
+        <a class="btn btn-secondary btn-lg" href="/employer/dashboard">Cancel</a>
+    </div>
+</form>
+<%- include('../partials/foot') %>

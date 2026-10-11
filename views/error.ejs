@@ -1,0 +1,8 @@
+<%- include('partials/head') %>
+<div class="narrow center">
+    <p class="muted" aria-hidden="true">Error <%= code %></p>
+    <h1><%= code === 404 ? 'Page not found' : code === 403 ? 'Not allowed' : 'Something went wrong' %></h1>
+    <p><%= message %></p>
+    <p><a class="btn" href="/">Go to the home page</a> <a class="btn btn-secondary" href="/jobs">Find jobs</a></p>
+</div>
+<%- include('partials/foot') %>

@@ -1,0 +1,31 @@
+# Render Blueprint: New + -> Blueprint -> pick this repo. Then fill in the secrets marked sync:false.
+services:
+  - type: web
+    name: visionconnect-jobs
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: node server.js
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: STORAGE_DRIVER
+        value: supabase
+      # optional: password-reset + notification emails (see README)
+      - key: MAIL_PROVIDER
+        value: brevo
+      - key: BREVO_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: CONTACT_EMAIL
+        sync: false

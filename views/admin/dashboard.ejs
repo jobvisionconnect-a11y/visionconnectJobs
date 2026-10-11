@@ -1,0 +1,46 @@
+<%- include('../partials/head') %>
+<h1>Admin dashboard</h1>
+<%- include('../partials/flash') %>
+<ul class="stats">
+    <li class="stat"><span class="n"><%= stats.totalUsers %></span> users (<%= stats.seekers %> seekers, <%= stats.employers %> employers)</li>
+    <li class="stat"><span class="n"><%= stats.pendingJobs %></span> jobs not approved</li>
+    <li class="stat"><span class="n"><%= stats.liveJobs %></span> approved jobs</li>
+    <li class="stat"><span class="n"><%= stats.applications %></span> applications</li>
+</ul>
+<div class="actions">
+    <a class="btn" href="/admin/jobs?status=pending">Review pending jobs</a>
+    <a class="btn btn-secondary" href="/admin/users">Manage users</a>
+</div>
+
+<h2>Newest jobs</h2>
+<div class="table-wrap" role="region" aria-label="Newest jobs" tabindex="0">
+<table>
+    <caption class="sr-only">Newest jobs</caption>
+    <thead><tr><th scope="col">Title</th><th scope="col">Employer</th><th scope="col">Status</th><th scope="col">Posted</th></tr></thead>
+    <tbody>
+    <% recentJobs.forEach(function (j) { %>
+        <tr>
+            <th scope="row"><%= j.title %></th>
+            <td><%= j.users.name %></td>
+            <td><%= j.is_approved ? 'Approved' : (j.rejection_reason ? 'Rejected' : 'Pending') %></td>
+            <td><%= h.fmtDate(j.created_at) %></td>
+        </tr>
+    <% }) %>
+    <% if (!recentJobs.length) { %><tr><td colspan="4">No jobs yet.</td></tr><% } %>
+    </tbody>
+</table>
+</div>
+
+<h2>Newest users</h2>
+<div class="table-wrap" role="region" aria-label="Newest users" tabindex="0">
+<table>
+    <caption class="sr-only">Newest users</caption>
+    <thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Joined</th></tr></thead>
+    <tbody>
+    <% recentUsers.forEach(function (u) { %>
+        <tr><th scope="row"><%= u.name %></th><td><%= u.email %></td><td><%= u.role %></td><td><%= h.fmtDate(u.created_at) %></td></tr>
+    <% }) %>
+    </tbody>
+</table>
+</div>
+<%- include('../partials/foot') %>

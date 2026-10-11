@@ -1,0 +1,24 @@
+<%- include('../partials/head') %>
+<div class="narrow">
+    <h1>Create your free account</h1>
+    <%- include('../partials/flash') %>
+    <%- include('../partials/errors') %>
+    <form class="form" method="post" action="/auth/register" novalidate>
+        <%- csrfField() %>
+        <fieldset class="group" id="role">
+            <legend>I want to <span class="req">(required)</span></legend>
+            <% if (errors.role) { %><p class="field-error"><span class="sr-only">Error:</span> <%= errors.role %></p><% } %>
+            <div class="checks">
+                <label class="check"><input type="radio" name="role" value="seeker" <%= formData.role === 'seeker' ? 'checked' : '' %>><span><strong>Find a job</strong>I am a job seeker.</span></label>
+                <label class="check"><input type="radio" name="role" value="employer" <%= formData.role === 'employer' ? 'checked' : '' %>><span><strong>Hire talent</strong>I am an employer.</span></label>
+            </div>
+        </fieldset>
+        <%- include('../partials/field', { f: { name: 'name', label: 'Full name', value: formData.name, required: true, autocomplete: 'name' } }) %>
+        <%- include('../partials/field', { f: { name: 'email', label: 'Email address', type: 'email', value: formData.email, required: true, autocomplete: 'email', inputmode: 'email' } }) %>
+        <%- include('../partials/field', { f: { name: 'password', label: 'Password', type: 'password', hint: 'At least 8 characters. A few random words are easy to remember and hard to guess.', required: true, autocomplete: 'new-password' } }) %>
+        <%- include('../partials/field', { f: { name: 'confirmPassword', label: 'Type the password again', type: 'password', required: true, autocomplete: 'new-password' } }) %>
+        <button class="btn btn-lg" type="submit">Create account</button>
+    </form>
+    <p class="mt">Already have an account? <a href="/auth/login">Log in</a></p>
+</div>
+<%- include('../partials/foot') %>

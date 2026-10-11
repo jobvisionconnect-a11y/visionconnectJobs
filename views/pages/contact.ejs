@@ -1,0 +1,14 @@
+<%- include('../partials/head') %>
+<div class="narrow">
+<h1>Contact us</h1>
+<% if (contactEmail || contactPhone) { %>
+    <dl class="dl">
+        <% if (contactEmail) { %><dt>Email</dt><dd><a href="mailto:<%= contactEmail %>"><%= contactEmail %></a></dd><% } %>
+        <% if (contactPhone) { %><dt>Phone</dt><dd><a href="tel:<%= contactPhone %>"><%= contactPhone %></a></dd><% } %>
+    </dl>
+    <p>Tell us if something on the site is hard to use with your tools. We treat accessibility problems as bugs and fix them first.</p>
+<% } else { %>
+    <p>Contact details have not been added yet. The site owner can set <code>CONTACT_EMAIL</code> and <code>CONTACT_PHONE</code> in the server settings.</p>
+<% } %>
+</div>
+<%- include('../partials/foot') %>

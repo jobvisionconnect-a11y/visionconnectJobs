@@ -1,0 +1,19 @@
+<%- include('../partials/head') %>
+<div class="narrow">
+    <h1>Choose a new password</h1>
+    <% if (!valid) { %>
+        <div class="notice notice-error" role="alert" data-autofocus><span class="ico" aria-hidden="true">⚠</span><div>
+            <p>This link is not valid any more. It may have expired or already been used.</p>
+        </div></div>
+        <p><a class="btn" href="/auth/forgot">Get a new link</a></p>
+    <% } else { %>
+        <%- include('../partials/errors') %>
+        <form class="form" method="post" action="/auth/reset/<%= token %>" novalidate>
+            <%- csrfField() %>
+            <%- include('../partials/field', { f: { name: 'password', label: 'New password', type: 'password', hint: 'At least 8 characters.', required: true, autocomplete: 'new-password' } }) %>
+            <%- include('../partials/field', { f: { name: 'confirmPassword', label: 'Type the new password again', type: 'password', required: true, autocomplete: 'new-password' } }) %>
+            <button class="btn btn-lg" type="submit">Save new password</button>
+        </form>
+    <% } %>
+</div>
+<%- include('../partials/foot') %>

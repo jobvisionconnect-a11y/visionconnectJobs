@@ -1,0 +1,28 @@
+<%
+  const lvl = (typeof level !== 'undefined' && level) ? level : 2;
+  const dl = h.daysLeft(job.application_deadline);
+  const sr = h.csv(job.assistive_tech_provided).includes('screen_reader');
+%>
+<article class="card" aria-labelledby="job-<%= job.id %>-title">
+    <h<%= lvl %> class="card-title" id="job-<%= job.id %>-title"><a href="/jobs/<%= job.id %>"><%= job.title %></a></h<%= lvl %>>
+    <ul class="meta">
+        <li><span class="k">Company:</span> <%= job.company %></li>
+        <% if (job.location) { %><li><span class="k">Location:</span> <%= job.location %></li><% } %>
+        <li><span class="k">Type:</span> <%= h.JOB_TYPES[job.job_type] || job.job_type %><% if (job.work_mode) { %>, <%= h.WORK_MODES[job.work_mode] || job.work_mode %><% } %></li>
+        <% if (job.salary_range) { %><li><span class="k">Pay:</span> <%= job.salary_range %></li><% } %>
+    </ul>
+    <% if (job.fits || sr || (dl !== null && dl <= 7)) { %>
+    <ul class="tags">
+        <% if (job.fits) { %><li class="badge badge-fit"><span aria-hidden="true">✓</span> Open to your disability category</li><% } %>
+        <% if (sr) { %><li>Screen reader provided</li><% } %>
+        <% if (dl !== null && dl <= 7) { %><li><%= dl <= 0 ? 'Last day to apply: today' : dl + ' day' + (dl === 1 ? '' : 's') + ' left to apply' %></li><% } %>
+    </ul>
+    <% } %>
+    <p><%= h.excerpt(job.description, 170) %></p>
+    <div class="actions">
+        <a class="btn btn-sm" href="/jobs/<%= job.id %>">View details<span class="sr-only"> for <%= job.title %></span></a>
+        <% if (user && user.role === 'seeker' && typeof job.is_saved !== 'undefined') { %>
+            <%- include('save-button', { job: job }) %>
+        <% } %>
+    </div>
+</article>

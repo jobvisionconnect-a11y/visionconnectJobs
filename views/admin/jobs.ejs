@@ -1,0 +1,46 @@
+<%- include('../partials/head') %>
+<h1>Manage jobs</h1>
+<%- include('../partials/flash') %>
+<nav aria-label="Filter jobs by status">
+    <ul class="tabs">
+        <% [['all','All'],['pending','Pending'],['approved','Approved'],['rejected','Rejected']].forEach(function (t) { %>
+            <li><a href="/admin/jobs?status=<%= t[0] %>" <%- filterStatus === t[0] ? 'aria-current="page"' : '' %>><%= t[1] %></a></li>
+        <% }) %>
+    </ul>
+</nav>
+<h2 class="sr-only">Jobs</h2>
+<% if (!jobs.length) { %><div class="card card-empty"><p>No jobs in this list.</p></div><% } %>
+<% jobs.forEach(function (j) { const state = j.is_approved ? 'approved' : (j.rejection_reason ? 'rejected' : 'pending'); %>
+<article class="card" aria-labelledby="aj-<%= j.id %>">
+    <div class="row-between">
+        <h3 class="card-title" id="aj-<%= j.id %>"><%= j.title %></h3>
+        <span class="badge badge-<%= state === 'approved' ? 'live' : state === 'rejected' ? 'rejected' : 'pending' %>"><%= state === 'approved' ? 'Approved' : state === 'rejected' ? 'Rejected' : 'Pending' %></span>
+    </div>
+    <ul class="meta">
+        <li><span class="k">Company:</span> <%= j.company %></li>
+        <li><span class="k">Posted by:</span> <%= j.users.name %> (<%= j.users.email %>)</li>
+        <li><span class="k">Date:</span> <%= h.fmtDate(j.created_at) %></li>
+        <% if (j.location) { %><li><span class="k">Location:</span> <%= j.location %></li><% } %>
+    </ul>
+    <details>
+        <summary>Read the full description</summary>
+        <div class="pre-wrap"><%= j.description %></div>
+    </details>
+    <% if (j.rejection_reason) { %><p class="mt"><strong>Rejection reason:</strong> <%= j.rejection_reason %></p><% } %>
+    <div class="actions">
+        <% if (!j.is_approved) { %>
+        <form method="post" action="/admin/jobs/<%= j.id %>/approve"><%- csrfField() %><button class="btn btn-sm" type="submit">Approve<span class="sr-only"> <%= j.title %></span></button></form>
+        <form class="inline-form" method="post" action="/admin/jobs/<%= j.id %>/reject">
+            <%- csrfField() %>
+            <label for="reason-<%= j.id %>" class="sr-only">Reason for rejecting <%= j.title %></label>
+            <input class="input" id="reason-<%= j.id %>" name="reason" placeholder="Reason (the employer will see it)" maxlength="300">
+            <button class="btn btn-ghost-danger btn-sm" type="submit">Reject<span class="sr-only"> <%= j.title %></span></button>
+        </form>
+        <% } %>
+        <form method="post" action="/admin/jobs/<%= j.id %>/delete" data-confirm="Permanently delete “<%= j.title %>” and all its applications? This cannot be undone.">
+            <%- csrfField() %><button class="btn btn-ghost-danger btn-sm" type="submit">Delete<span class="sr-only"> <%= j.title %></span></button>
+        </form>
+    </div>
+</article>
+<% }) %>
+<%- include('../partials/foot') %>

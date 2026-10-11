@@ -1,0 +1,56 @@
+<%- include('../partials/head') %>
+<h1>Hello, <%= user.name %></h1>
+<%- include('../partials/flash') %>
+
+<section aria-labelledby="sum-title">
+    <h2 id="sum-title" class="mt0">Your job search</h2>
+    <ul class="stats">
+        <li class="stat"><span class="n"><%= stats.total %></span> <%= stats.total === 1 ? 'application' : 'applications' %> sent</li>
+        <li class="stat"><span class="n"><%= stats.active %></span> waiting for the employer</li>
+        <li class="stat"><span class="n"><%= stats.shortlisted %></span> shortlisted</li>
+        <li class="stat"><span class="n"><%= stats.hired %></span> hired</li>
+    </ul>
+    <div class="actions">
+        <a class="btn" href="/jobs">Find jobs</a>
+        <a class="btn btn-secondary" href="/seeker/saved-jobs">Saved jobs (<%= savedCount %>)</a>
+        <a class="btn btn-secondary" href="/seeker/profile">Edit my profile</a>
+    </div>
+</section>
+
+<% if (missing.length) { %>
+<section class="notice notice-info mt" aria-labelledby="todo-title">
+    <span class="ico" aria-hidden="true">i</span>
+    <div>
+        <h2 id="todo-title">Make your profile stronger</h2>
+        <ul><% missing.forEach(function (m) { %><li><%= m %></li><% }) %></ul>
+        <p><a href="/seeker/profile">Open my profile</a></p>
+    </div>
+</section>
+<% } %>
+
+<section aria-labelledby="recent-title">
+    <h2 id="recent-title">Recent applications</h2>
+    <% if (!applications.length) { %>
+        <div class="card card-empty">
+            <h3>You have not applied yet</h3>
+            <p>Browse open jobs and use “Quick apply” to send your profile in one step.</p>
+            <a class="btn" href="/jobs">Browse jobs</a>
+        </div>
+    <% } else { %>
+        <% applications.slice(0, 5).forEach(function (a) { %>
+            <article class="card" aria-labelledby="app-<%= a.id %>">
+                <div class="row-between">
+                    <h3 class="card-title" id="app-<%= a.id %>"><a href="/jobs/<%= a.jobs.id %>"><%= a.jobs.title %></a></h3>
+                    <%- include('../partials/status-badge', { status: a.status }) %>
+                </div>
+                <ul class="meta">
+                    <li><span class="k">Company:</span> <%= a.jobs.company %></li>
+                    <li><span class="k">Applied:</span> <%= h.fmtDate(a.applied_at) %></li>
+                </ul>
+                <p class="small muted"><%= h.STATUS[a.status].help %></p>
+            </article>
+        <% }) %>
+        <% if (applications.length > 5) { %><p class="mt"><a class="btn btn-secondary" href="/seeker/applications">See all <%= applications.length %> applications</a></p><% } %>
+    <% } %>
+</section>
+<%- include('../partials/foot') %>

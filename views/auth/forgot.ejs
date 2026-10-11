@@ -1,0 +1,24 @@
+<%- include('../partials/head') %>
+<div class="narrow">
+    <h1>Forgot your password?</h1>
+    <% if (sent) { %>
+        <div class="notice notice-success" role="status" data-autofocus><span class="ico" aria-hidden="true">✓</span><div>
+            <p><strong>Check your email.</strong></p>
+            <p>If an account exists for that address, we have sent a link to choose a new password. The link works for 1 hour. Please also look in your spam folder.</p>
+        </div></div>
+        <p><a class="btn btn-secondary" href="/auth/login">Back to log in</a></p>
+    <% } else { %>
+        <% if (!emailReady) { %>
+            <div class="notice notice-warn"><span class="ico" aria-hidden="true">!</span><div><p>Password reset emails are not switched on for this site yet. Please contact the VisionConnect team to reset your password.</p></div></div>
+        <% } %>
+        <%- include('../partials/errors') %>
+        <p>Enter the email address you used to register. We will send you a link to choose a new password.</p>
+        <form class="form" method="post" action="/auth/forgot" novalidate>
+            <%- csrfField() %>
+            <%- include('../partials/field', { f: { name: 'email', label: 'Email address', type: 'email', value: formData.email, required: true, autocomplete: 'email', inputmode: 'email' } }) %>
+            <button class="btn btn-lg" type="submit">Send reset link</button>
+        </form>
+        <p class="mt"><a href="/auth/login">Back to log in</a></p>
+    <% } %>
+</div>
+<%- include('../partials/foot') %>

@@ -1,0 +1,39 @@
+<%
+  const type = f.type || 'text';
+  const err = errors && errors[f.name];
+  const hintId = f.name + '-hint', errId = f.name + '-error';
+  const described = [f.hint ? hintId : '', err ? errId : ''].filter(Boolean).join(' ');
+  const val = (f.value === undefined || f.value === null) ? '' : f.value;
+%>
+<div class="field">
+    <label for="<%= f.name %>"><%= f.label %><% if (f.required) { %> <span class="req">(required)</span><% } %></label>
+    <% if (f.hint) { %><span class="hint" id="<%= hintId %>"><%= f.hint %></span><% } %>
+    <% if (err) { %><p class="field-error" id="<%= errId %>"><span class="sr-only">Error:</span> <%= err %></p><% } %>
+    <% if (type === 'textarea') { %>
+        <textarea class="input" id="<%= f.name %>" name="<%= f.name %>" rows="<%= f.rows || 5 %>"
+            <% if (f.maxlength) { %>maxlength="<%= f.maxlength %>"<% } %>
+            <% if (f.required) { %>aria-required="true"<% } %>
+            <% if (described) { %>aria-describedby="<%= described %>"<% } %>
+            <% if (err) { %>aria-invalid="true"<% } %>><%= val %></textarea>
+    <% } else if (type === 'select') { %>
+        <select class="input" id="<%= f.name %>" name="<%= f.name %>"
+            <% if (f.required) { %>aria-required="true"<% } %>
+            <% if (described) { %>aria-describedby="<%= described %>"<% } %>
+            <% if (err) { %>aria-invalid="true"<% } %>>
+            <% (f.options || []).forEach(function (o) { %>
+                <option value="<%= o[0] %>" <%= String(val) === String(o[0]) ? 'selected' : '' %>><%= o[1] %></option>
+            <% }) %>
+        </select>
+    <% } else { %>
+        <input class="input" id="<%= f.name %>" name="<%= f.name %>" type="<%= type %>" value="<%= val %>"
+            <% if (f.autocomplete) { %>autocomplete="<%= f.autocomplete %>"<% } %>
+            <% if (f.inputmode) { %>inputmode="<%= f.inputmode %>"<% } %>
+            <% if (f.min !== undefined) { %>min="<%= f.min %>"<% } %>
+            <% if (f.max !== undefined) { %>max="<%= f.max %>"<% } %>
+            <% if (f.maxlength) { %>maxlength="<%= f.maxlength %>"<% } %>
+            <% if (f.placeholder) { %>placeholder="<%= f.placeholder %>"<% } %>
+            <% if (f.required) { %>aria-required="true"<% } %>
+            <% if (described) { %>aria-describedby="<%= described %>"<% } %>
+            <% if (err) { %>aria-invalid="true"<% } %>>
+    <% } %>
+</div>

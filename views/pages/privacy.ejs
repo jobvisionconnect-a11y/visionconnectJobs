@@ -1,0 +1,39 @@
+<%- include('../partials/head') %>
+<div class="narrow">
+<h1>Privacy policy</h1>
+<p class="lead">VisionConnect Jobs collects only what is needed to connect job seekers and employers. This page explains it in plain language.</p>
+
+<section class="section" aria-labelledby="p1"><h2 id="p1">What we collect</h2>
+<ul>
+    <li><strong>Account:</strong> name, email address and a password (stored only as a one-way hash).</li>
+    <li><strong>Job seekers (optional details):</strong> skills, education, experience, phone, city, resume, and disability information (category, percentage, UDID number, the support you need).</li>
+    <li><strong>Employers:</strong> company name and the jobs you post.</li>
+    <li><strong>Applications</strong> and <strong>saved jobs.</strong></li>
+</ul></section>
+
+<section class="section" aria-labelledby="p2"><h2 id="p2">Who can see it</h2>
+<ul>
+    <li>Your profile, disability details and resume are visible to <strong>you</strong>, to <strong>employers whose job you applied to</strong>, and to site administrators who keep the portal running.</li>
+    <li>Other employers and the public cannot see them. Resumes are stored privately and are never public links.</li>
+    <li>We do not sell your data and we do not show advertising.</li>
+</ul></section>
+
+<section class="section" aria-labelledby="p3"><h2 id="p3">Cookies and device storage</h2>
+<p>We use one cookie to keep you logged in and protect forms. Your accessibility settings (text size, colours) are saved only on your own device. We do not use tracking or advertising cookies.</p></section>
+
+<section class="section" aria-labelledby="p4"><h2 id="p4">Emails</h2>
+<p>We send emails only about your account: password reset links, and updates about your applications or applicants.</p></section>
+
+<section class="section" aria-labelledby="p5"><h2 id="p5">Your choices</h2>
+<ul>
+    <li>Disability details are optional. You can choose “Prefer not to say”.</li>
+    <li>You can edit your profile at any time, and <a href="/auth/account">delete your account</a> yourself. This removes your profile, resume and applications.</li>
+</ul></section>
+
+<section class="section" aria-labelledby="p6"><h2 id="p6">Where data is stored</h2>
+<p>Data is stored with our database provider (Supabase) and hosting provider. Their servers may be outside India.</p></section>
+
+<section class="section" aria-labelledby="p7"><h2 id="p7">Questions</h2>
+<% if (contactEmail) { %><p>Write to <a href="mailto:<%= contactEmail %>"><%= contactEmail %></a>.</p><% } else { %><p>Please use the <a href="/contact">contact page</a>.</p><% } %></section>
+</div>
+<%- include('../partials/foot') %>

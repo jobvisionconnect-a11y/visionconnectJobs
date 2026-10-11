@@ -1,0 +1,117 @@
+<%- include('../partials/head') %>
+<%
+  const dl = h.daysLeft(job.application_deadline);
+  const tech = h.labelList(job.assistive_tech_provided, h.TECH_PROVIDED);
+  const interviews = h.labelList(job.interview_modes, h.INTERVIEW_MODES);
+  const cats = h.csv(job.disability_categories || 'all');
+%>
+<a class="back" href="/jobs"><span aria-hidden="true">←&nbsp;</span>Back to all jobs</a>
+<h1><%= job.title %></h1>
+<p class="lead"><strong><%= job.company %></strong><% if (job.location) { %> · <%= job.location %><% } %></p>
+<%- include('../partials/flash') %>
+
+<ul class="tags">
+    <li><%= h.JOB_TYPES[job.job_type] || job.job_type %></li>
+    <li><%= h.WORK_MODES[job.work_mode] || job.work_mode %></li>
+    <% if (fits) { %><li class="badge badge-fit"><span aria-hidden="true">✓</span> Open to your disability category</li><% } %>
+    <% if (fits === false) { %><li>The employer is looking for a different disability category or percentage</li><% } %>
+</ul>
+<p><a href="#apply">Jump to apply</a></p>
+
+<div class="detail-grid">
+    <div>
+        <section class="section" aria-labelledby="about-title">
+            <h2 id="about-title">About the job</h2>
+            <div class="pre-wrap"><%= job.description %></div>
+        </section>
+
+        <% if (job.requirements) { %>
+        <section class="section" aria-labelledby="req-title">
+            <h2 id="req-title">What you need</h2>
+            <div class="pre-wrap"><%= job.requirements %></div>
+        </section>
+        <% } %>
+
+        <section class="section" aria-labelledby="access-title">
+            <h2 id="access-title">Accessibility and support at work</h2>
+            <% if (tech.length) { %>
+                <h3>Tools the employer provides</h3>
+                <ul><% tech.forEach(function (t) { %><li><%= t %></li><% }) %></ul>
+            <% } %>
+            <% if (interviews.length) { %>
+                <h3>How interviews are done</h3>
+                <ul><% interviews.forEach(function (t) { %><li><%= t %></li><% }) %></ul>
+            <% } %>
+            <% if (job.accessibility_features) { %><h3>Workplace features</h3><div class="pre-wrap"><%= job.accessibility_features %></div><% } %>
+            <% if (job.accommodation_details) { %><h3>Adjustments the employer can make</h3><div class="pre-wrap"><%= job.accommodation_details %></div><% } %>
+            <% if (!tech.length && !interviews.length && !job.accessibility_features && !job.accommodation_details) { %>
+                <p class="muted">The employer has not listed accessibility details yet. You can ask them when you apply.</p>
+            <% } %>
+        </section>
+
+        <section class="section" aria-labelledby="who-title">
+            <h2 id="who-title">Who can apply</h2>
+            <dl class="dl">
+                <dt>Disability categories</dt>
+                <dd><%= cats.includes('all') ? 'All categories are welcome' : cats.map(function (c) { return h.DISABILITY_CATEGORIES[c] || c; }).join(', ') %></dd>
+                <% if (job.min_disability_percent) { %><dt>Minimum disability</dt><dd><%= job.min_disability_percent %>%</dd><% } %>
+                <dt>UDID card</dt><dd><%= job.udid_required ? 'Required' : 'Not required' %></dd>
+                <% if (job.experience_required) { %><dt>Experience</dt><dd><%= job.experience_required %></dd><% } %>
+            </dl>
+        </section>
+    </div>
+
+    <aside class="detail-side" aria-labelledby="apply">
+        <div class="card" id="apply-card">
+            <h2 id="apply" tabindex="-1" class="mt0">Apply</h2>
+            <dl class="dl">
+                <% if (job.salary_range) { %><dt>Pay</dt><dd><%= job.salary_range %></dd><% } %>
+                <dt>Openings</dt><dd><%= job.openings || 1 %></dd>
+                <% if (job.application_deadline) { %>
+                    <dt>Last date</dt>
+                    <dd><%= h.fmtDate(job.application_deadline) %><% if (dl !== null && dl >= 0) { %> (<%= dl === 0 ? 'today' : dl + ' day' + (dl === 1 ? '' : 's') + ' left' %>)<% } %></dd>
+                <% } %>
+            </dl>
+
+            <% if (!user) { %>
+                <p>Log in or create a free account to apply.</p>
+                <div class="actions">
+                    <a class="btn" href="/auth/login">Log in</a>
+                    <a class="btn btn-secondary" href="/auth/register">Create account</a>
+                </div>
+            <% } else if (user.role !== 'seeker') { %>
+                <p class="muted">Only job seeker accounts can apply for jobs.</p>
+            <% } else if (hasApplied) { %>
+                <div class="notice notice-success" role="status"><span class="ico" aria-hidden="true">✓</span><div>
+                    <p><strong>You have applied.</strong></p>
+                    <p>Status: <%- include('../partials/status-badge', { status: hasApplied.status }) %></p>
+                    <p><a href="/seeker/applications">See all my applications</a></p>
+                </div></div>
+            <% } else if (closed) { %>
+                <div class="notice notice-warn"><span class="ico" aria-hidden="true">!</span><div><p>The last date to apply has passed.</p></div></div>
+            <% } else if (!profileReady) { %>
+                <div class="notice notice-info"><span class="ico" aria-hidden="true">i</span><div>
+                    <p>Add your skills and education to your profile before applying. It takes about two minutes.</p>
+                    <p><a class="btn btn-sm" href="/seeker/profile">Complete my profile</a></p>
+                </div></div>
+            <% } else { %>
+                <h3>Quick apply</h3>
+                <p class="small muted">Sends your profile and resume to the employer in one step.</p>
+                <form method="post" action="/jobs/<%= job.id %>/quick-apply">
+                    <%- csrfField() %>
+                    <button class="btn btn-block" type="submit">Quick apply<span class="sr-only"> for <%= job.title %></span></button>
+                </form>
+                <hr>
+                <h3>Apply with a cover letter</h3>
+                <form method="post" action="/jobs/<%= job.id %>/apply">
+                    <%- csrfField() %>
+                    <%- include('../partials/field', { f: { name: 'cover_letter', label: 'Why are you a good fit?', type: 'textarea', rows: 6, hint: 'Optional. A few sentences are enough.', maxlength: 4000 } }) %>
+                    <button class="btn btn-secondary btn-block" type="submit">Send application with cover letter</button>
+                </form>
+                <hr>
+                <%- include('../partials/save-button', { job: { id: job.id, title: job.title, is_saved: isSaved } }) %>
+            <% } %>
+        </div>
+    </aside>
+</div>
+<%- include('../partials/foot') %>

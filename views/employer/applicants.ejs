@@ -1,0 +1,77 @@
+<%- include('../partials/head') %>
+<a class="back" href="/employer/dashboard"><span aria-hidden="true">←&nbsp;</span>Back to dashboard</a>
+<h1>Applicants for <%= job.title %></h1>
+<%- include('../partials/flash') %>
+<p class="muted"><%= h.plural(total, 'applicant') %> in total.</p>
+
+<nav aria-label="Filter applicants by status">
+    <ul class="tabs">
+        <li><a href="?status=all" <%- filter === 'all' ? 'aria-current="page"' : '' %>>All (<%= total %>)</a></li>
+        <% Object.keys(h.STATUS).forEach(function (s) { %>
+            <li><a href="?status=<%= s %>" <%- filter === s ? 'aria-current="page"' : '' %>><%= h.STATUS[s].label %> (<%= counts[s] %>)</a></li>
+        <% }) %>
+    </ul>
+</nav>
+
+<% if (!applicants.length) { %>
+    <div class="card card-empty"><h2>No applicants here</h2><p><%= total ? 'No one has this status yet.' : 'No one has applied yet. Check back soon.' %></p></div>
+<% } else { %>
+    <% applicants.forEach(function (a) { const p = a.profile; %>
+    <article class="card" aria-labelledby="ap-<%= a.id %>">
+        <div class="row-between">
+            <h2 class="card-title" id="ap-<%= a.id %>"><%= a.users.name %></h2>
+            <%- include('../partials/status-badge', { status: a.status }) %>
+        </div>
+        <ul class="meta">
+            <li><span class="k">Email:</span> <a href="mailto:<%= a.users.email %>"><%= a.users.email %></a></li>
+            <% if (p.phone) { %><li><span class="k">Phone:</span> <a href="tel:<%= p.phone %>"><%= p.phone %></a></li><% } %>
+            <% if (p.location) { %><li><span class="k">Location:</span> <%= p.location %></li><% } %>
+            <li><span class="k">Applied:</span> <%= h.fmtDate(a.applied_at) %> (<%= a.is_quick_apply ? 'quick apply' : 'with cover letter' %>)</li>
+        </ul>
+
+        <dl class="dl">
+            <% if (p.skills) { %><dt>Skills</dt><dd><%= p.skills %></dd><% } %>
+            <% if (p.education) { %><dt>Education</dt><dd><%= p.education %></dd><% } %>
+            <% if (p.work_experience) { %><dt>Experience</dt><dd><%= p.work_experience %></dd><% } %>
+            <% if (p.certifications) { %><dt>Certificates</dt><dd><%= p.certifications %></dd><% } %>
+            <% if (p.languages) { %><dt>Languages</dt><dd><%= p.languages %></dd><% } %>
+            <% if (p.bio) { %><dt>About</dt><dd><%= p.bio %></dd><% } %>
+            <% if (!a.is_quick_apply && a.cover_letter) { %><dt>Cover letter</dt><dd class="pre-wrap"><%= a.cover_letter %></dd><% } %>
+        </dl>
+
+        <% if (p.disability_category || p.accessibility_needs || p.assistive_tech || p.preferred_interview || p.preferred_work_mode) { %>
+        <section class="notice notice-info" aria-label="Support needs of <%= a.users.name %>">
+            <span class="ico" aria-hidden="true">i</span>
+            <div>
+                <h3>Support this candidate asked for</h3>
+                <dl class="dl">
+                    <% if (p.disability_category && p.disability_category !== 'undisclosed') { %><dt>Category</dt><dd><%= h.DISABILITY_CATEGORIES[p.disability_category] || p.disability_category %><% if (p.disability_percent) { %>, <%= p.disability_percent %>%<% } %></dd><% } %>
+                    <% if (p.udid_number) { %><dt>UDID</dt><dd><%= p.udid_number %></dd><% } %>
+                    <% if (p.accessibility_needs) { %><dt>Needs at work</dt><dd><%= h.labelList(p.accessibility_needs, h.ACCESSIBILITY_NEEDS).join(', ') %></dd><% } %>
+                    <% if (p.assistive_tech) { %><dt>Tools they use</dt><dd><%= h.labelList(p.assistive_tech, h.ASSISTIVE_TECH).join(', ') %></dd><% } %>
+                    <% if (p.preferred_interview) { %><dt>Preferred interview</dt><dd><%= h.labelList(p.preferred_interview, h.INTERVIEW_MODES).join(', ') %></dd><% } %>
+                    <% if (p.preferred_work_mode) { %><dt>Preferred work</dt><dd><%= h.WORK_MODES[p.preferred_work_mode] || p.preferred_work_mode %></dd><% } %>
+                </dl>
+            </div>
+        </section>
+        <% } %>
+
+        <div class="actions">
+            <% if (p.resume_path) { %><a class="btn btn-secondary btn-sm" href="/files/resume/<%= a.seeker_id %>">Download resume<span class="sr-only"> of <%= a.users.name %></span></a><% } %>
+            <% if (p.linkedin_url) { %><a class="btn btn-secondary btn-sm" href="<%= p.linkedin_url %>" target="_blank" rel="noopener noreferrer">LinkedIn<span class="sr-only"> of <%= a.users.name %>, opens in a new tab</span></a><% } %>
+            <% if (p.portfolio_url) { %><a class="btn btn-secondary btn-sm" href="<%= p.portfolio_url %>" target="_blank" rel="noopener noreferrer">Portfolio<span class="sr-only"> of <%= a.users.name %>, opens in a new tab</span></a><% } %>
+        </div>
+
+        <form class="inline-form mt" method="post" action="/employer/jobs/<%= job.id %>/applicants/<%= a.id %>/status">
+            <%- csrfField() %>
+            <input type="hidden" name="filter" value="<%= filter === 'all' ? '' : filter %>">
+            <label for="status-<%= a.id %>">Change status for <%= a.users.name %></label>
+            <select class="input" id="status-<%= a.id %>" name="status">
+                <% Object.keys(h.STATUS).forEach(function (s) { %><option value="<%= s %>" <%= a.status === s ? 'selected' : '' %>><%= h.STATUS[s].label %></option><% }) %>
+            </select>
+            <button class="btn btn-sm" type="submit">Save status</button>
+        </form>
+    </article>
+    <% }) %>
+<% } %>
+<%- include('../partials/foot') %>

@@ -1,0 +1,105 @@
+<%- include('../partials/head') %>
+<%
+  const p = profile;
+  const needs = h.csv(p.accessibility_needs), tech = h.csv(p.assistive_tech), interview = h.csv(p.preferred_interview);
+  const fields = [p.skills, p.education, p.phone, p.location, p.bio, p.work_experience, p.languages, p.disability_category, p.preferred_work_mode, p.preferred_interview, p.resume_path];
+  const pct = Math.round(fields.filter(function (v) { return v && String(v).trim(); }).length / fields.length * 100);
+%>
+<h1>My profile</h1>
+<%- include('../partials/flash') %>
+<%- include('../partials/errors') %>
+
+<% if (!profileComplete) { %>
+<div class="notice notice-info"><span class="ico" aria-hidden="true">i</span><div>
+    <p><strong>Two things are required:</strong> your skills and your education. Everything else is optional, but a fuller profile helps employers choose you.</p>
+</div></div>
+<% } %>
+
+<div class="mb" role="group" aria-label="Profile progress">
+    <p><strong>Profile <%= pct %>% complete</strong></p>
+    <div class="progress" role="progressbar" aria-valuenow="<%= pct %>" aria-valuemin="0" aria-valuemax="100" aria-label="Profile completeness"><span class="w-<%= Math.round(pct / 10) * 10 %>"></span></div>
+</div>
+
+<form class="form" method="post" action="/seeker/profile" enctype="multipart/form-data" novalidate>
+    <%- csrfField() %>
+
+    <fieldset class="group">
+        <legend>About you</legend>
+        <%- include('../partials/field', { f: { name: 'name', label: 'Full name', value: displayName, required: true, autocomplete: 'name' } }) %>
+        <div class="two-col">
+            <%- include('../partials/field', { f: { name: 'phone', label: 'Phone number', type: 'tel', value: p.phone, autocomplete: 'tel', inputmode: 'tel', hint: 'Employers use this to call you for interviews.' } }) %>
+            <%- include('../partials/field', { f: { name: 'location', label: 'City or area', value: p.location, autocomplete: 'address-level2' } }) %>
+        </div>
+        <%- include('../partials/field', { f: { name: 'languages', label: 'Languages you speak', value: p.languages, hint: 'For example: Marathi, Hindi, English' } }) %>
+        <%- include('../partials/field', { f: { name: 'bio', label: 'A short introduction', type: 'textarea', rows: 4, value: p.bio, hint: 'Two or three sentences about you and the work you want.', maxlength: 1500 } }) %>
+    </fieldset>
+
+    <fieldset class="group">
+        <legend>Skills and experience</legend>
+        <%- include('../partials/field', { f: { name: 'skills', label: 'Skills', type: 'textarea', rows: 3, value: p.skills, required: true, hint: 'Separate with commas. For example: MS Word, typing, phone support, Braille.', maxlength: 600 } }) %>
+        <%- include('../partials/field', { f: { name: 'education', label: 'Education', type: 'textarea', rows: 3, value: p.education, required: true, hint: 'For example: BA Economics, second year, Fergusson College.', maxlength: 800 } }) %>
+        <%- include('../partials/field', { f: { name: 'work_experience', label: 'Work or internship experience', type: 'textarea', rows: 4, value: p.work_experience, hint: 'If you are a fresher, write “Fresher”. Volunteering counts.', maxlength: 1500 } }) %>
+        <%- include('../partials/field', { f: { name: 'certifications', label: 'Certificates and courses', type: 'textarea', rows: 3, value: p.certifications, maxlength: 600 } }) %>
+    </fieldset>
+
+    <fieldset class="group">
+        <legend>Disability and support</legend>
+        <p class="hint">This section is optional. Employers see it only after you apply to their job. It helps them prepare the right support.</p>
+        <%- include('../partials/field', { f: { name: 'disability_category', label: 'Disability category', type: 'select', value: p.disability_category || '',
+            options: [['', 'Choose one']].concat(Object.entries(h.DISABILITY_CATEGORIES)) } }) %>
+        <div class="two-col">
+            <%- include('../partials/field', { f: { name: 'disability_percent', label: 'Disability percentage', type: 'number', min: 0, max: 100, value: p.disability_percent || '', inputmode: 'numeric', hint: 'From your certificate. Leave empty if unsure.' } }) %>
+            <%- include('../partials/field', { f: { name: 'udid_number', label: 'UDID card number', value: p.udid_number, hint: 'Optional.' } }) %>
+        </div>
+
+        <fieldset class="group" data-checkgroup>
+            <legend>What helps you at work</legend>
+            <div class="checks">
+                <% Object.entries(h.ACCESSIBILITY_NEEDS).forEach(function (e) { %>
+                    <label class="check"><input type="checkbox" name="accessibility_needs" value="<%= e[0] %>" <%= needs.includes(e[0]) ? 'checked' : '' %>><span><%= e[1] %></span></label>
+                <% }) %>
+            </div>
+        </fieldset>
+        <fieldset class="group">
+            <legend>Assistive technology you use</legend>
+            <div class="checks">
+                <% Object.entries(h.ASSISTIVE_TECH).forEach(function (e) { %>
+                    <label class="check"><input type="checkbox" name="assistive_tech" value="<%= e[0] %>" <%= tech.includes(e[0]) ? 'checked' : '' %>><span><%= e[1] %></span></label>
+                <% }) %>
+            </div>
+        </fieldset>
+    </fieldset>
+
+    <fieldset class="group">
+        <legend>Work preferences</legend>
+        <%- include('../partials/field', { f: { name: 'preferred_work_mode', label: 'Where do you prefer to work?', type: 'select', value: p.preferred_work_mode || '',
+            options: [['', 'No preference']].concat(Object.entries(h.WORK_MODES)) } }) %>
+        <fieldset class="group">
+            <legend>How would you like to be interviewed?</legend>
+            <div class="checks">
+                <% Object.entries(h.INTERVIEW_MODES).forEach(function (e) { %>
+                    <label class="check"><input type="checkbox" name="preferred_interview" value="<%= e[0] %>" <%= interview.includes(e[0]) ? 'checked' : '' %>><span><%= e[1] %></span></label>
+                <% }) %>
+            </div>
+        </fieldset>
+    </fieldset>
+
+    <fieldset class="group">
+        <legend>Resume and links</legend>
+        <div class="field">
+            <label for="resume">Resume file</label>
+            <span class="hint" id="resume-hint">PDF, Word or text file, up to 5 MB.
+                <% if (p.resume_path) { %> You already uploaded one: <a href="/files/resume/<%= user.id %>">download current resume</a>. Choosing a new file replaces it.<% } %></span>
+            <% if (errors.resume) { %><p class="field-error" id="resume-error"><span class="sr-only">Error:</span> <%= errors.resume %></p><% } %>
+            <input class="input" id="resume" name="resume" type="file" accept=".pdf,.doc,.docx,.txt" aria-describedby="resume-hint<%= errors.resume ? ' resume-error' : '' %>">
+        </div>
+        <%- include('../partials/field', { f: { name: 'linkedin_url', label: 'LinkedIn address', type: 'url', value: p.linkedin_url, placeholder: 'https://', inputmode: 'url' } }) %>
+        <%- include('../partials/field', { f: { name: 'portfolio_url', label: 'Portfolio or website', type: 'url', value: p.portfolio_url, placeholder: 'https://', inputmode: 'url' } }) %>
+    </fieldset>
+
+    <div class="actions">
+        <button class="btn btn-lg" type="submit">Save profile</button>
+        <a class="btn btn-secondary btn-lg" href="/seeker/dashboard">Cancel</a>
+    </div>
+</form>
+<%- include('../partials/foot') %>

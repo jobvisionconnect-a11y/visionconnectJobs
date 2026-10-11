@@ -1,0 +1,40 @@
+<%- include('../partials/head') %>
+<h1>Manage users</h1>
+<%- include('../partials/flash') %>
+<nav aria-label="Filter users by role">
+    <ul class="tabs">
+        <% [['all','All'],['seeker','Job seekers'],['employer','Employers'],['admin','Admins']].forEach(function (t) { %>
+            <li><a href="/admin/users?role=<%= t[0] %>" <%- filterRole === t[0] ? 'aria-current="page"' : '' %>><%= t[1] %></a></li>
+        <% }) %>
+    </ul>
+</nav>
+<div class="table-wrap" role="region" aria-label="Users" tabindex="0">
+<table>
+    <caption class="sr-only">Users</caption>
+    <thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Joined</th><th scope="col">Account</th></tr></thead>
+    <tbody>
+    <% users.forEach(function (u) { %>
+        <tr>
+            <th scope="row"><%= u.name %></th>
+            <td><%= u.email %></td>
+            <td><%= u.role %></td>
+            <td><%= h.fmtDate(u.created_at) %></td>
+            <td>
+                <% if (u.id === user.id) { %>
+                    You
+                <% } else { %>
+                    <%= u.is_approved ? 'Active' : 'Suspended' %>
+                    <form method="post" action="/admin/users/<%= u.id %>/toggle" data-confirm="<%= u.is_approved ? 'Suspend ' : 'Reactivate ' %><%= u.name %>?">
+                        <%- csrfField() %>
+                        <input type="hidden" name="role" value="<%= filterRole === 'all' ? '' : filterRole %>">
+                        <button class="btn btn-sm <%= u.is_approved ? 'btn-ghost-danger' : 'btn-secondary' %>" type="submit"><%= u.is_approved ? 'Suspend' : 'Reactivate' %><span class="sr-only"> <%= u.name %></span></button>
+                    </form>
+                <% } %>
+            </td>
+        </tr>
+    <% }) %>
+    <% if (!users.length) { %><tr><td colspan="5">No users.</td></tr><% } %>
+    </tbody>
+</table>
+</div>
+<%- include('../partials/foot') %>

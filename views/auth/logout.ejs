@@ -1,0 +1,11 @@
+<%- include('../partials/head') %>
+<div class="narrow">
+    <h1>Log out of VisionConnect?</h1>
+    <p>You are logged in as <strong><%= user.name %></strong>.</p>
+    <form method="post" action="/auth/logout" class="actions">
+        <%- csrfField() %>
+        <button class="btn btn-lg" type="submit">Yes, log me out</button>
+        <a class="btn btn-secondary btn-lg" href="/">No, stay logged in</a>
+    </form>
+</div>
+<%- include('../partials/foot') %>

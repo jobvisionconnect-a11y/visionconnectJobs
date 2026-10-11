@@ -1,0 +1,15 @@
+<%- include('../partials/head') %>
+<h1>Saved jobs</h1>
+<%- include('../partials/flash') %>
+<% if (!jobs.length) { %>
+    <div class="card card-empty">
+        <h2>Nothing saved yet</h2>
+        <p>Use “Save job” on any job to keep it here for later.</p>
+        <a class="btn" href="/jobs">Find jobs</a>
+    </div>
+<% } else { %>
+    <div class="grid">
+        <% jobs.forEach(function (job) { job.is_saved = true; %><%- include('../partials/job-card', { job: job, level: 2 }) %><% }) %>
+    </div>
+<% } %>
+<%- include('../partials/foot') %>

@@ -1,0 +1,72 @@
+<%- include('../partials/head') %>
+<%
+  const hasFilters = !!(filters.q || filters.location || filters.type !== 'all' || filters.work_mode !== 'all' || filters.screen_reader || filters.match);
+  const qs = function (extra) {
+      const p = new URLSearchParams();
+      if (filters.q) p.set('q', filters.q);
+      if (filters.location) p.set('location', filters.location);
+      if (filters.type !== 'all') p.set('type', filters.type);
+      if (filters.work_mode !== 'all') p.set('work_mode', filters.work_mode);
+      if (filters.screen_reader) p.set('screen_reader', '1');
+      if (filters.match) p.set('match', '1');
+      Object.keys(extra || {}).forEach(function (k) { p.set(k, extra[k]); });
+      const s = p.toString();
+      return '/jobs' + (s ? '?' + s : '');
+  };
+%>
+<h1>Find jobs</h1>
+<%- include('../partials/flash') %>
+
+<form class="filters" action="/jobs" method="get" role="search" aria-label="Search and filter jobs">
+    <div class="two-col">
+        <%- include('../partials/field', { f: { name: 'q', label: 'Keyword', type: 'search', value: filters.q, hint: 'Job title, company or skill', maxlength: 80 } }) %>
+        <%- include('../partials/field', { f: { name: 'location', label: 'City or area', value: filters.location, hint: 'For example: Pune', maxlength: 80 } }) %>
+        <%- include('../partials/field', { f: { name: 'type', label: 'Job type', type: 'select', value: filters.type,
+            options: [['all', 'Any type']].concat(Object.entries(h.JOB_TYPES)) } }) %>
+        <%- include('../partials/field', { f: { name: 'work_mode', label: 'Where you work', type: 'select', value: filters.work_mode,
+            options: [['all', 'Anywhere']].concat(Object.entries(h.WORK_MODES)) } }) %>
+    </div>
+    <div class="checks">
+        <label class="check"><input type="checkbox" name="screen_reader" value="1" <%= filters.screen_reader ? 'checked' : '' %>><span>Employer provides a screen reader</span></label>
+        <% if (canMatch) { %>
+        <label class="check"><input type="checkbox" name="match" value="1" <%= filters.match ? 'checked' : '' %>><span>Only jobs open to my disability category</span></label>
+        <% } %>
+    </div>
+    <div class="actions">
+        <button class="btn" type="submit">Search jobs</button>
+        <% if (hasFilters) { %><a class="btn btn-secondary" href="/jobs">Clear all filters</a><% } %>
+    </div>
+</form>
+
+<% if (loadError) { %>
+    <div class="notice notice-error" role="alert"><span class="ico" aria-hidden="true">⚠</span><div><p>We could not load jobs right now. Please try again in a moment.</p></div></div>
+<% } else { %>
+<h2 id="results-title" tabindex="-1" <%- (hasFilters && !success && !error) ? 'data-autofocus' : '' %>>
+    <%= resultCount === 0 ? 'No jobs found' : resultCount + (resultCount === 1 ? ' job found' : ' jobs found') %><% if (totalPages > 1) { %>, page <%= page %> of <%= totalPages %><% } %>
+</h2>
+
+<% if (!user) { %>
+    <p class="muted"><a href="/auth/register">Create a free account</a> to save jobs and apply in one step.</p>
+<% } %>
+
+<% if (jobs.length === 0) { %>
+    <div class="card card-empty">
+        <h3>Nothing matches yet</h3>
+        <p>Try fewer filters, a shorter keyword, or a nearby city.</p>
+        <a class="btn btn-secondary" href="/jobs">Show all jobs</a>
+    </div>
+<% } else { %>
+    <div class="grid">
+        <% jobs.forEach(function (job) { %><%- include('../partials/job-card', { job: job, level: 3 }) %><% }) %>
+    </div>
+
+    <% if (totalPages > 1) { %>
+    <nav class="pagination" aria-label="Pages of results">
+        <% if (page > 1) { %><a class="btn btn-secondary" href="<%= qs({ page: page - 1 }) %>" rel="prev">Previous page</a><% } %>
+        <span>Page <%= page %> of <%= totalPages %></span>
+        <% if (page < totalPages) { %><a class="btn btn-secondary" href="<%= qs({ page: page + 1 }) %>" rel="next">Next page</a><% } %>
+    </nav>
+    <% } %>
+<% } %>
+<% } %>
+<%- include('../partials/foot') %>

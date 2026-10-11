@@ -1,0 +1,49 @@
+<%- include('../partials/head') %>
+<h1>Employer dashboard</h1>
+<%- include('../partials/flash') %>
+
+<ul class="stats">
+    <li class="stat"><span class="n"><%= stats.live %></span> live <%= stats.live === 1 ? 'job' : 'jobs' %></li>
+    <li class="stat"><span class="n"><%= stats.pending %></span> waiting for approval</li>
+    <li class="stat"><span class="n"><%= stats.applicants %></span> <%= stats.applicants === 1 ? 'applicant' : 'applicants' %> in total</li>
+    <li class="stat"><span class="n"><%= stats.fresh %></span> not yet reviewed</li>
+</ul>
+<p><a class="btn" href="/employer/jobs/new">Post a new job</a></p>
+
+<h2>Your jobs</h2>
+<% if (!jobs.length) { %>
+    <div class="card card-empty">
+        <h3>You have not posted a job yet</h3>
+        <p>Add your first job. Tell candidates which assistive tools you provide and how interviews work. It helps the right people apply.</p>
+        <a class="btn" href="/employer/jobs/new">Post your first job</a>
+    </div>
+<% } else { %>
+    <% jobs.forEach(function (j) { %>
+    <article class="card" aria-labelledby="job-<%= j.id %>">
+        <div class="row-between">
+            <h3 class="card-title" id="job-<%= j.id %>"><%= j.title %></h3>
+            <% if (!j.is_approved && j.rejection_reason) { %><span class="badge badge-rejected"><span aria-hidden="true">✕</span> Rejected</span>
+            <% } else if (!j.is_approved) { %><span class="badge badge-pending"><span aria-hidden="true">◐</span> Waiting for approval</span>
+            <% } else if (!j.is_active) { %><span class="badge badge-closed"><span aria-hidden="true">–</span> Closed</span>
+            <% } else { %><span class="badge badge-live"><span aria-hidden="true">✓</span> Live</span><% } %>
+        </div>
+        <ul class="meta">
+            <li><span class="k">Company:</span> <%= j.company %></li>
+            <li><span class="k">Posted:</span> <%= h.fmtDate(j.created_at) %></li>
+            <li><span class="k">Applicants:</span> <%= j.applicationCount %><% if (j.newCount) { %> (<%= j.newCount %> new)<% } %></li>
+        </ul>
+        <% if (!j.is_approved && j.rejection_reason) { %>
+            <div class="notice notice-warn"><span class="ico" aria-hidden="true">!</span><div><p><strong>Reason:</strong> <%= j.rejection_reason %></p><p>Edit the job to send it for review again.</p></div></div>
+        <% } %>
+        <div class="actions">
+            <a class="btn btn-sm" href="/employer/jobs/<%= j.id %>/applicants">View applicants<span class="sr-only"> for <%= j.title %></span></a>
+            <a class="btn btn-secondary btn-sm" href="/employer/jobs/<%= j.id %>/edit">Edit<span class="sr-only"> <%= j.title %></span></a>
+            <form method="post" action="/employer/jobs/<%= j.id %>/toggle">
+                <%- csrfField() %>
+                <button class="btn btn-secondary btn-sm" type="submit"><%= j.is_active ? 'Close job' : 'Reopen job' %><span class="sr-only"> <%= j.title %></span></button>
+            </form>
+        </div>
+    </article>
+    <% }) %>
+<% } %>
+<%- include('../partials/foot') %>

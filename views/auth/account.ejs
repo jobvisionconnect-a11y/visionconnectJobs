@@ -1,0 +1,34 @@
+<%- include('../partials/head') %>
+<div class="narrow">
+    <h1>My account</h1>
+    <%- include('../partials/flash') %>
+    <%- include('../partials/errors') %>
+    <dl class="dl">
+        <dt>Name</dt><dd><%= user.name %></dd>
+        <dt>Email</dt><dd><%= user.email %></dd>
+        <dt>Account type</dt><dd><%= user.role === 'seeker' ? 'Job seeker' : user.role === 'employer' ? 'Employer' : 'Admin' %></dd>
+    </dl>
+
+    <h2>Change password</h2>
+    <form class="form" method="post" action="/auth/account/password" novalidate>
+        <%- csrfField() %>
+        <%- include('../partials/field', { f: { name: 'current', label: 'Current password', type: 'password', required: true, autocomplete: 'current-password' } }) %>
+        <%- include('../partials/field', { f: { name: 'password', label: 'New password', type: 'password', hint: 'At least 8 characters.', required: true, autocomplete: 'new-password' } }) %>
+        <%- include('../partials/field', { f: { name: 'confirmPassword', label: 'Type the new password again', type: 'password', required: true, autocomplete: 'new-password' } }) %>
+        <button class="btn" type="submit">Change password</button>
+    </form>
+
+    <% if (user.role !== 'admin') { %>
+    <h2>Delete my account</h2>
+    <div class="notice notice-warn"><span class="ico" aria-hidden="true">!</span><div>
+        <p>This permanently deletes your profile, resume, applications<%= user.role === 'employer' ? ', and all the jobs you posted' : '' %>. It cannot be undone.</p>
+    </div></div>
+    <form class="form" method="post" action="/auth/account/delete" novalidate data-confirm="Delete your account permanently?">
+        <%- csrfField() %>
+        <%- include('../partials/field', { f: { name: 'delete_password', label: 'Your password', type: 'password', required: true, autocomplete: 'current-password' } }) %>
+        <%- include('../partials/field', { f: { name: 'confirm', label: 'Type DELETE to confirm', required: true, autocomplete: 'off' } }) %>
+        <button class="btn btn-danger" type="submit">Delete my account for ever</button>
+    </form>
+    <% } %>
+</div>
+<%- include('../partials/foot') %>

@@ -1,0 +1,62 @@
+<%- include('partials/head') %>
+<%- include('partials/flash') %>
+
+<section class="hero" aria-labelledby="hero-title">
+    <h1 id="hero-title">Jobs that are ready for you, not the other way round.</h1>
+    <p class="lead">VisionConnect Jobs is a free job portal for students and graduates with any disability: blind or low vision, deaf or hard of hearing, mobility, speech, intellectual, autism and more. Every page works with a screen reader, a keyboard, voice, a magnifier, or plain text.</p>
+
+    <form class="hero-search" action="/jobs" method="get" role="search" aria-label="Search jobs">
+        <div class="field mt0">
+            <label for="hero-q">What job are you looking for?</label>
+            <input class="input" id="hero-q" name="q" type="search" placeholder="For example: data entry, teacher, telecaller" autocomplete="off">
+        </div>
+        <button class="btn btn-lg" type="submit">Search jobs</button>
+    </form>
+    <div class="actions">
+        <a class="btn btn-secondary" href="/auth/register">Create a free account</a>
+        <a href="/auth/register?role=employer">I am an employer and want to hire</a>
+    </div>
+</section>
+
+<section aria-labelledby="how-title">
+    <h2 id="how-title" class="mt0">How it works</h2>
+    <ol class="steps">
+        <li><h3>Make your profile</h3><p>Tell us your skills, education and what support helps you at work, such as a screen reader or a flexible schedule.</p></li>
+        <li><h3>Find jobs that fit</h3><p>Every job lists the tools the employer provides and how interviews are done, so you know before you apply.</p></li>
+        <li><h3>Apply in one step</h3><p>Use “Quick apply” to send your profile, or add a cover letter. Then follow the status on your dashboard.</p></li>
+    </ol>
+</section>
+
+<section aria-labelledby="stats-title">
+    <h2 id="stats-title">VisionConnect today</h2>
+    <ul class="stats">
+        <li class="stat"><span class="n"><%= jobCount %></span> open <%= jobCount === 1 ? 'job' : 'jobs' %></li>
+        <li class="stat"><span class="n"><%= employerCount %></span> <%= employerCount === 1 ? 'employer' : 'employers' %></li>
+        <li class="stat"><span class="n"><%= applicationCount %></span> <%= applicationCount === 1 ? 'application' : 'applications' %> sent</li>
+    </ul>
+</section>
+
+<% if (latestJobs.length) { %>
+<section aria-labelledby="latest-title">
+    <div class="row-between">
+        <h2 id="latest-title" class="mt0">Newest jobs</h2>
+        <a class="btn btn-secondary btn-sm" href="/jobs">See all jobs</a>
+    </div>
+    <div class="grid">
+        <% latestJobs.forEach(function (job) { %><%- include('partials/job-card', { job: job, level: 3 }) %><% }) %>
+    </div>
+</section>
+<% } %>
+
+<section class="band" aria-labelledby="built-title">
+    <h2 id="built-title" class="mt0">Built for accessibility from the first line of code</h2>
+    <ul>
+        <li><strong>Screen reader first.</strong> Clear headings, landmarks, labelled forms and spoken error messages.</li>
+        <li><strong>Low vision settings.</strong> Three text sizes, high-contrast colours and wide spacing, saved on your device.</li>
+        <li><strong>Keyboard and voice.</strong> Use Tab and Enter, or say “jobs”, “profile” or “search for teacher” in English, Hindi or Marathi.</li>
+        <li><strong>Plain language.</strong> Short sentences and no hidden steps, easy for everyone including people with learning or cognitive disabilities.</li>
+        <li><strong>Every disability welcome.</strong> Employers say which disabilities a job suits and how interviews are done: text chat, sign language interpreter, captioned video or a wheelchair-accessible venue.</li>
+    </ul>
+    <p><a href="/accessibility">Learn how to use VisionConnect with your tools</a></p>
+</section>
+<%- include('partials/foot') %>

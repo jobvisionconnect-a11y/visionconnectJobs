@@ -1,0 +1,7 @@
+<form method="post" action="/seeker/saved-jobs/toggle" class="js-save">
+    <%- csrfField() %>
+    <input type="hidden" name="job_id" value="<%= job.id %>">
+    <button type="submit" class="btn btn-secondary btn-sm btn-save" aria-pressed="<%= job.is_saved ? 'true' : 'false' %>">
+        Save job<span class="sr-only">: <%= job.title %></span>
+    </button>
+</form>
